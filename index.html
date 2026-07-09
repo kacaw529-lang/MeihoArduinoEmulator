@@ -14,74 +14,87 @@
   --rail-red:#E2504C; --rail-blue:#3C77C2; --radius:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px;}
-header{margin-bottom:14px;}
-.rail{height:6px;border-radius:3px;margin:6px 0;
-  background-image:radial-gradient(circle,var(--rail-red) 2px,transparent 2.4px);
-  background-size:16px 6px;background-repeat:repeat-x;}
-.rail.blue{background-image:radial-gradient(circle,var(--rail-blue) 2px,transparent 2.4px);}
-h1{font-size:26px;font-weight:700;letter-spacing:1px;}
+body{font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;}
+.wrap{max-width:1400px;margin:0 auto;padding:12px 14px 40px;}
+header{margin-bottom:8px;}
+.rail{height:4px;border-radius:2px;margin:4px 0;
+  background-image:radial-gradient(circle,var(--rail-red) 1.6px,transparent 2px);
+  background-size:14px 4px;background-repeat:repeat-x;}
+.rail.blue{background-image:radial-gradient(circle,var(--rail-blue) 1.6px,transparent 2px);}
+.titleRow{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;}
+h1{font-size:20px;font-weight:700;letter-spacing:1px;}
 h1 .zap{color:var(--teal);}
-.sub{font-size:14px;color:var(--muted);}
-details.help{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 16px;margin:12px 0;font-size:14px;}
+.sub{font-size:13px;color:var(--muted);}
+details.help{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 14px;margin:8px 0;font-size:14px;}
 details.help summary{cursor:pointer;font-weight:500;color:var(--teal-dark);}
 details.help ol{padding-left:22px;margin-top:6px;}
 details.help li{margin:2px 0;}
-.panel{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px;}
-.group{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;}
+.layout{display:grid;grid-template-columns:216px minmax(0,1fr);gap:10px;align-items:start;}
+.side{display:flex;flex-direction:column;gap:8px;position:sticky;top:8px;
+  max-height:calc(100vh - 16px);overflow-y:auto;padding-right:2px;}
+.main{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.group{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 10px 10px;display:flex;flex-direction:column;gap:6px;}
 .group .eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--copper);text-transform:uppercase;}
 .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
-button{font-family:inherit;font-size:14px;padding:7px 12px;border-radius:8px;border:1px solid var(--line);
+button{font-family:inherit;font-size:14px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);
   background:var(--card);color:var(--ink);cursor:pointer;transition:background .15s;}
 button:hover{background:var(--teal-tint);}
 button:active{transform:scale(.97);}
 button.primary{background:var(--teal);border-color:var(--teal-dark);color:#fff;font-weight:500;}
 button.primary:hover{background:var(--teal-dark);}
+button.mode{width:100%;text-align:left;}
 button.mode.on{background:var(--teal-tint);border-color:var(--teal);color:var(--teal-dark);font-weight:500;}
+button.wide{width:100%;text-align:left;}
 button.danger:hover{background:#FBEAEA;border-color:#D68A8A;color:#8F2626;}
 select,input[type=range]{font-family:inherit;font-size:14px;}
-select{padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);}
+select{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);}
 label.small{font-size:13px;color:var(--muted);}
-.swatch{width:26px;height:26px;min-width:26px;padding:0;border-radius:50%;border:2px solid var(--line-strong);}
+.swatch{width:25px;height:25px;min-width:25px;padding:0;border-radius:50%;border:2px solid var(--line-strong);}
 .swatch.on{outline:3px solid var(--teal);outline-offset:1px;}
 input[type=range]{accent-color:var(--teal);}
 input[type=checkbox]{accent-color:var(--teal);width:16px;height:16px;}
-#paletteBar{display:flex;gap:8px;overflow-x:auto;padding:4px 2px;min-height:88px;align-items:flex-start;}
-.thumb{position:relative;width:78px;flex:0 0 auto;text-align:center;cursor:pointer;border:1px solid var(--line);
+#selPanel.off{opacity:.45;pointer-events:none;}
+#paletteBar{display:flex;gap:8px;overflow-x:auto;padding:4px 2px;min-height:80px;align-items:flex-start;}
+.thumb{position:relative;width:76px;flex:0 0 auto;text-align:center;cursor:pointer;border:1px solid var(--line);
   border-radius:8px;padding:6px 4px 4px;background:#FDFEFE;}
 .thumb:hover{border-color:var(--teal);background:var(--teal-tint);}
-.thumb img{width:56px;height:48px;object-fit:contain;display:block;margin:0 auto;pointer-events:none;}
+.thumb img{width:54px;height:44px;object-fit:contain;display:block;margin:0 auto;pointer-events:none;}
 .thumb .nm{font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
 .thumb .rm{position:absolute;top:-7px;right:-7px;width:18px;height:18px;min-width:18px;padding:0;border-radius:50%;
   font-size:11px;line-height:1;background:#fff;border:1px solid var(--line-strong);color:var(--muted);}
 .thumb .rm:hover{background:#FBEAEA;color:#8F2626;border-color:#D68A8A;}
 #emptyPalette{font-size:13px;color:var(--muted);align-self:center;}
-.stage{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px;}
+.stage{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px;}
 canvas#cv{display:block;width:100%;border-radius:6px;touch-action:none;cursor:crosshair;background:#FAFBFB;}
-#hint{font-size:13px;color:var(--muted);margin-top:6px;min-height:20px;}
+#hint{font-size:13px;color:var(--muted);margin-top:6px;min-height:40px;}
 #hint.ok{color:#1F7A3D;font-weight:500;}
 #hint.bad{color:#B3261E;font-weight:500;}
-#selPanel{display:none;}
-footer{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;}
-@media (max-width:640px){ h1{font-size:21px;} button{padding:8px 10px;} }
+footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
+@media (max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .side{position:static;max-height:none;overflow:visible;flex-direction:row;flex-wrap:wrap;}
+  .side .group{flex:1 1 250px;}
+  button.mode,button.wide{width:auto;}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <div class="rail"></div>
-  <h1><span class="zap">⌁</span> 開發板接線模擬器</h1>
-  <p class="sub">支援 Arduino、ESP32、micro:bit⋯⋯上傳任何開發板與感測器的實際照片，先在螢幕上規劃接線，再動手實作。</p>
+  <div class="titleRow">
+    <h1><span class="zap">⌁</span> 開發板接線模擬器</h1>
+    <span class="sub">支援 Arduino、ESP32、micro:bit⋯⋯上傳照片、標記腳位、點擊接線。</span>
+  </div>
   <div class="rail blue"></div>
 </header>
 
 <details class="help">
   <summary>使用說明（點我展開）</summary>
   <ol>
-    <li><b>準備圖片</b>：上傳「開發板圖片」當固定底圖（可調大小）；上傳「感測器圖片」進圖庫（可多張），點縮圖加入畫布。</li>
+    <li><b>準備圖片</b>：上傳「開發板圖片」當固定底圖（可調大小，腳位會跟著縮放）；上傳「感測器圖片」進圖庫（可多張），點縮圖加入畫布。</li>
     <li><b>標記腳位</b>（老師建置一次即可）：切到「標記腳位」模式，點開發板上的針腳位置並命名（如 5V、GND、D9、A0）；點感測器上的針腳同樣命名（如 V、G、S）。<b>同一種感測器只要標一次</b>，之後每個放上畫布的都會自帶腳位。名稱含 V／VCC／5V 會自動視為電源（紅點）、G／GND 為接地（黑點）、其他為訊號（黃點）。點已存在的腳位可重新命名，名稱清空則刪除。</li>
-    <li><b>點擊接線</b>：切到「接線」模式，點一下起點腳位，會出現跟著游標的預覽線，再點終點腳位即完成。接線會<b>自動吸附腳位</b>，之後拖曳感測器，線會跟著移動！電源與接地互接時，線會變成紅色虛線並出現 ⚠ 警示。</li>
+    <li><b>點擊接線</b>：切到「接線」模式，點一下起點腳位，會出現跟著游標的預覽線，再點終點腳位即完成。接線會<b>自動吸附腳位</b>，之後拖曳感測器或縮放底圖，線都會跟著移動！電源與接地互接時，線會變成紅色虛線並出現 ⚠ 警示。</li>
     <li><b>自動配色</b>：勾選後，從電源腳位出發的線自動為紅色、接地為黑色、訊號則使用你目前選的畫筆顏色。</li>
     <li><b>畫筆／橡皮擦</b>：畫筆可自由手繪補充註記；橡皮擦劃過手繪線或接線皆可刪除。</li>
     <li><b>檢查接線</b>：一鍵檢查是否有電源／接地互接的錯誤。</li>
@@ -89,86 +102,81 @@ footer{margin-top:14px;font-size:12px;color:var(--muted);text-align:center;}
   </ol>
 </details>
 
-<div class="panel">
-  <div class="group">
-    <span class="eyebrow">圖片</span>
-    <div class="row">
-      <button id="boardBtn">上傳開發板圖片</button>
-      <button id="sensorBtn">上傳感測器圖片</button>
-      <span class="row" id="boardScaleRow" style="display:none;">
-        <label class="small" for="boardScale">底圖大小</label>
-        <input type="range" id="boardScale" min="30" max="100" value="90" step="1" style="width:110px;">
-      </span>
-      <span class="row">
-        <input type="checkbox" id="labelChk" checked>
-        <label class="small" for="labelChk">顯示名稱</label>
-      </span>
-    </div>
-  </div>
+<div class="layout">
+<aside class="side">
   <div class="group">
     <span class="eyebrow">模式</span>
-    <div class="row">
-      <button class="mode" data-mode="pin">📍 標記腳位</button>
-      <button class="mode on" data-mode="connect">🔗 接線</button>
-      <button class="mode" data-mode="move">✋ 移動</button>
-      <button class="mode" data-mode="draw">✏️ 畫筆</button>
-      <button class="mode" data-mode="erase">🩹 橡皮擦</button>
-    </div>
+    <button class="mode" data-mode="pin">📍 標記腳位</button>
+    <button class="mode on" data-mode="connect">🔗 接線</button>
+    <button class="mode" data-mode="move">✋ 移動</button>
+    <button class="mode" data-mode="draw">✏️ 畫筆</button>
+    <button class="mode" data-mode="erase">🩹 橡皮擦</button>
   </div>
   <div class="group">
     <span class="eyebrow">線條</span>
+    <div class="row" id="colorRow"></div>
     <div class="row">
-      <span class="row" id="colorRow"></span>
       <select id="widthSel" aria-label="線條粗細">
         <option value="3">細線</option>
         <option value="5" selected>中線</option>
         <option value="8">粗線</option>
       </select>
-      <span class="row">
-        <input type="checkbox" id="autoColorChk" checked>
-        <label class="small" for="autoColorChk">依腳位自動配色</label>
-      </span>
+    </div>
+    <div class="row">
+      <input type="checkbox" id="autoColorChk" checked>
+      <label class="small" for="autoColorChk">依腳位自動配色</label>
     </div>
   </div>
-  <div class="group" id="selPanel">
+  <div class="group off" id="selPanel">
     <span class="eyebrow">選取的感測器</span>
     <div class="row">
       <label class="small" for="itemScale">大小</label>
-      <input type="range" id="itemScale" min="30" max="250" value="100" step="1" style="width:110px;">
-      <button id="delBtn" class="danger">刪除選取</button>
+      <input type="range" id="itemScale" min="30" max="250" value="100" step="1" style="width:100px;">
+    </div>
+    <button id="delBtn" class="wide danger">🗑 刪除選取</button>
+  </div>
+  <div class="group">
+    <span class="eyebrow">圖片</span>
+    <button id="boardBtn" class="wide">上傳開發板圖片</button>
+    <button id="sensorBtn" class="wide">上傳感測器圖片</button>
+    <div class="row" id="boardScaleRow" style="display:none;">
+      <label class="small" for="boardScale">底圖大小</label>
+      <input type="range" id="boardScale" min="30" max="100" value="90" step="1" style="width:100px;">
+    </div>
+    <div class="row">
+      <input type="checkbox" id="labelChk" checked>
+      <label class="small" for="labelChk">顯示名稱</label>
     </div>
   </div>
   <div class="group">
     <span class="eyebrow">畫布動作</span>
-    <div class="row">
-      <button id="checkBtn">✔ 檢查接線</button>
-      <button id="undoBtn">↩ 復原</button>
-      <button id="clearWireBtn">清除接線</button>
-      <button id="clearAllBtn" class="danger">全部清除</button>
-      <button id="exportBtn" class="primary">⬇ 匯出圖片</button>
-    </div>
+    <button id="checkBtn" class="wide">✔ 檢查接線</button>
+    <button id="undoBtn" class="wide">↩ 復原</button>
+    <button id="clearWireBtn" class="wide">清除接線</button>
+    <button id="clearAllBtn" class="wide danger">全部清除</button>
+    <button id="exportBtn" class="wide primary">⬇ 匯出圖片</button>
   </div>
   <div class="group">
     <span class="eyebrow">檔案</span>
-    <div class="row">
-      <button id="saveBtn">儲存進度</button>
-      <button id="loadBtn">讀取進度</button>
-      <button id="publishBtn">匯出成品網頁</button>
-    </div>
+    <button id="saveBtn" class="wide">儲存進度</button>
+    <button id="loadBtn" class="wide">讀取進度</button>
+    <button id="publishBtn" class="wide">匯出成品網頁</button>
   </div>
+</aside>
+
+<main class="main">
+  <div class="group">
+    <span class="eyebrow">感測器圖庫（點縮圖加入畫布）</span>
+    <div id="paletteBar"><span id="emptyPalette">尚未上傳感測器圖片。</span></div>
+  </div>
+  <div class="stage">
+    <canvas id="cv"></canvas>
+    <p id="hint"></p>
+  </div>
+</main>
 </div>
 
-<div class="group" style="margin-bottom:10px;">
-  <span class="eyebrow">感測器圖庫（點縮圖加入畫布）</span>
-  <div id="paletteBar"><span id="emptyPalette">尚未上傳感測器圖片。</span></div>
-</div>
-
-<div class="stage">
-  <canvas id="cv"></canvas>
-  <p id="hint"></p>
-</div>
-
-<footer>開發板接線模擬器 v2 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
+<footer>開發板接線模擬器 v3 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
 </div>
 
 <input type="file" id="boardFile" accept="image/*" hidden>
@@ -187,10 +195,10 @@ var ctx=cv.getContext('2d');
 var board={img:null,dataUrl:null,scale:0.9};
 var palette=[];      /* {id,name,dataUrl,img,pins:[{id,name,type,nx,ny}]} */
 var items=[];        /* {id,pid,x,y,scale} */
-var boardPins=[];    /* {id,name,type,x,y} */
-var connections=[];  /* {a:{t:'b',pin}|{t:'i',item,pin}, b:..., color} */
+var boardPins=[];    /* {id,name,type,nx,ny} 相對於底圖繪製區 */
+var connections=[];  /* {a:{t:'b',pin}|{t:'i',item,pin}, b:..., color, width} */
 var strokes=[];      /* {color,width,pts:[{x,y}]} */
-var hist=[];         /* {k:'s'|'c'} 供復原 */
+var hist=[];
 var cur=null, sel=null, dragOff=null, erasing=false;
 var pending=null, mousePt=null;
 var mode='connect', penColor='#F2B705', penWidth=5, showLabels=true, autoColor=true;
@@ -231,6 +239,18 @@ function processFile(file,maxDim){
 }
 
 /* ---------- 幾何 ---------- */
+function boardRect(){
+  if(board.img){
+    var k=Math.min(W*board.scale/board.img.naturalWidth,H*board.scale/board.img.naturalHeight);
+    var bw=board.img.naturalWidth*k,bh=board.img.naturalHeight*k;
+    return{x:(W-bw)/2,y:(H-bh)/2,w:bw,h:bh};
+  }
+  return{x:0,y:0,w:W,h:H};
+}
+function boardPinPos(p){
+  var r=boardRect();
+  return{x:r.x+p.nx*r.w,y:r.y+p.ny*r.h};
+}
 function itemRect(it){
   var p=palette.find(function(q){return q.id===it.pid;});
   if(!p||!p.img)return{x:it.x,y:it.y,w:120,h:90,ih:90};
@@ -241,7 +261,8 @@ function resolvePin(ref){
   if(ref.t==='b'){
     var p=boardPins.find(function(q){return q.id===ref.pin;});
     if(!p)return null;
-    return{x:p.x,y:p.y,type:p.type,name:p.name,label:'開發板 '+p.name};
+    var pos=boardPinPos(p);
+    return{x:pos.x,y:pos.y,type:p.type,name:p.name,label:'開發板 '+p.name};
   }
   var it=items.find(function(q){return q.id===ref.item;});
   if(!it)return null;
@@ -319,10 +340,8 @@ function scene(c,forExport){
     for(var gx=40;gx<W;gx+=40)for(var gy=40;gy<H;gy+=40){c.beginPath();c.arc(gx,gy,1.4,0,7);c.fill();}
   }
   if(board.img){
-    var maxW=W*board.scale,maxH=H*board.scale;
-    var k=Math.min(maxW/board.img.naturalWidth,maxH/board.img.naturalHeight);
-    var bw=board.img.naturalWidth*k,bh=board.img.naturalHeight*k;
-    c.drawImage(board.img,(W-bw)/2,(H-bh)/2,bw,bh);
+    var br=boardRect();
+    c.drawImage(board.img,br.x,br.y,br.w,br.h);
   }else if(!forExport){
     c.fillStyle='#9AABAA'; c.font='500 26px "Noto Sans TC",sans-serif';
     c.textAlign='center'; c.textBaseline='middle';
@@ -359,7 +378,10 @@ function scene(c,forExport){
       c.stroke();c.setLineDash([]);
     }
   }
-  boardPins.forEach(function(p){drawPinDot(c,p.x,p.y,p.type,p.name);});
+  boardPins.forEach(function(p){
+    var pos=boardPinPos(p);
+    drawPinDot(c,pos.x,pos.y,p.type,p.name);
+  });
   items.forEach(function(it){
     var pal=palette.find(function(q){return q.id===it.pid;});
     if(!pal)return;
@@ -417,7 +439,8 @@ function hitPin(p){
   }
   for(var k=0;k<boardPins.length;k++){
     var bp=boardPins[k];
-    var dx2=p.x-bp.x,dy2=p.y-bp.y;
+    var pos=boardPinPos(bp);
+    var dx2=p.x-pos.x,dy2=p.y-pos.y;
     if(dx2*dx2+dy2*dy2<R)return{ref:{t:'b',pin:bp.id},obj:bp,pal:null};
   }
   return null;
@@ -486,7 +509,8 @@ cv.addEventListener('pointerdown',function(e){
       say('已在「'+pal.name+'」加上腳位「'+nm+'」（'+PIN_LABEL[tp]+'）——所有同款感測器都會擁有這個腳位。');
       renderPalette();
     }else{
-      boardPins.push({id:uid('b'),name:nm,type:tp,x:p.x,y:p.y});
+      var br=boardRect();
+      boardPins.push({id:uid('b'),name:nm,type:tp,nx:(p.x-br.x)/br.w,ny:(p.y-br.y)/br.h});
       say('已在開發板加上腳位「'+nm+'」（'+PIN_LABEL[tp]+'）。');
     }
     render();
@@ -548,7 +572,7 @@ document.addEventListener('keydown',function(e){
 /* ---------- 工具列 ---------- */
 var HINTS={
   pin:'標記腳位模式：點開發板或感測器上的針腳位置並命名；點已存在的腳位可改名或刪除。',
-  connect:'接線模式：點一下起點腳位 → 再點終點腳位，接線完成後會跟著感測器移動。',
+  connect:'接線模式：點一下起點腳位 → 再點終點腳位，接線完成後會跟著感測器與底圖移動。',
   move:'移動模式：拖曳感測器換位置，點選後可縮放或刪除。',
   draw:'畫筆模式：自由手繪，適合補充註記或圈重點。',
   erase:'橡皮擦模式：劃過手繪線或接線即可刪除。'};
@@ -556,7 +580,7 @@ var selPanel=document.getElementById('selPanel');
 var itemScale=document.getElementById('itemScale');
 function setSel(s){
   sel=s;
-  selPanel.style.display=s?'flex':'none';
+  selPanel.classList.toggle('off',!s);
   if(s)itemScale.value=Math.round(s.scale*100);
 }
 function removeSel(){
@@ -635,7 +659,7 @@ boardFile.addEventListener('change',function(){
   processFile(f,1600).then(function(r){
     board.img=r.img; board.dataUrl=r.dataUrl;
     boardScaleRow.style.display='flex'; render();
-    say('開發板底圖已載入。若更換底圖，記得檢查腳位標記位置是否仍正確。');
+    say('開發板底圖已載入。標記的腳位會跟著底圖一起縮放。');
   });
   boardFile.value='';
 });
@@ -711,7 +735,7 @@ document.getElementById('exportBtn').addEventListener('click',function(){
 
 /* ---------- 專案儲存 / 讀取 ---------- */
 function projectData(){
-  return{v:2,
+  return{v:3,
     board:board.dataUrl?{dataUrl:board.dataUrl,scale:board.scale}:null,
     palette:palette.map(function(p){return{id:p.id,name:p.name,dataUrl:p.dataUrl,pins:p.pins||[]};}),
     items:items, boardPins:boardPins, connections:connections,
@@ -756,6 +780,14 @@ function loadProject(d){
   showLabels=(d.showLabels!==false);
   document.getElementById('labelChk').checked=showLabels;
   return Promise.all(tasks).then(function(){
+    /* 舊版（v2）腳位為絕對座標，轉為相對於底圖的座標 */
+    var br=boardRect();
+    boardPins=boardPins.map(function(p){
+      if(p.nx===undefined&&p.x!==undefined){
+        return{id:p.id,name:p.name,type:p.type,nx:(p.x-br.x)/br.w,ny:(p.y-br.y)/br.h};
+      }
+      return p;
+    });
     boardScaleRow.style.display=board.img?'flex':'none';
     document.getElementById('boardScale').value=Math.round(board.scale*100);
     pruneConnections();
