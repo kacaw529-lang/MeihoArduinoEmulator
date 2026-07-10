@@ -49,8 +49,9 @@ button.danger:hover{background:#FBEAEA;border-color:#D68A8A;color:#8F2626;}
 select,input[type=range]{font-family:inherit;font-size:14px;}
 select{padding:5px 8px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);}
 label.small{font-size:13px;color:var(--muted);}
-.swatch{width:25px;height:25px;min-width:25px;padding:0;border-radius:50%;border:2px solid var(--line-strong);}
-.swatch.on{outline:3px solid var(--teal);outline-offset:1px;}
+.legend{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink);}
+.legend i{width:22px;height:12px;border-radius:6px;border:1px solid rgba(0,0,0,.2);flex:0 0 auto;}
+.legend i.multi{background:linear-gradient(90deg,#F2B705 0 25%,#1F9E4D 25% 50%,#2465D6 50% 75%,#F07F13 75% 100%);}
 input[type=range]{accent-color:var(--teal);}
 input[type=checkbox]{accent-color:var(--teal);width:16px;height:16px;}
 #selPanel.off{opacity:.45;pointer-events:none;}
@@ -95,8 +96,8 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <li><b>準備圖片</b>：上傳「開發板圖片」當固定底圖（可調大小，腳位會跟著縮放）；上傳「感測器圖片」進圖庫（可多張），點縮圖加入畫布。</li>
     <li><b>標記腳位</b>（老師建置一次即可）：切到「標記腳位」模式，點開發板上的針腳位置並命名（如 5V、GND、D9、A0）；點感測器上的針腳同樣命名（如 V、G、S）。<b>同一種感測器只要標一次</b>，之後每個放上畫布的都會自帶腳位。名稱含 V／VCC／5V 會自動視為電源（紅點）、G／GND 為接地（黑點）、其他為訊號（黃點）。點已存在的腳位可重新命名，名稱清空則刪除。</li>
     <li><b>點擊接線</b>：切到「接線」模式，點一下起點腳位，會出現跟著游標的預覽線，再點終點腳位即完成。接線會<b>自動吸附腳位</b>，之後拖曳感測器或縮放底圖，線都會跟著移動！電源與接地互接時，線會變成紅色虛線並出現 ⚠ 警示。</li>
-    <li><b>自動配色</b>：勾選後，從電源腳位出發的線自動為紅色、接地為黑色、訊號則使用你目前選的畫筆顏色。</li>
-    <li><b>畫筆／橡皮擦</b>：畫筆可自由手繪補充註記；橡皮擦劃過手繪線或接線皆可刪除。</li>
+    <li><b>自動配色</b>：接到電源（V）的線固定紅色、接地（G）固定黑色，訊號線則自動輪流分配不重複的顏色，一眼就能分辨每一條線，不需手動選色。</li>
+    <li><b>畫筆／橡皮擦</b>：畫筆為灰色手繪，適合補充註記或圈重點；橡皮擦劃過手繪線或接線皆可刪除。教學換板或換腳位配置時，可用「清除開發板腳位」一鍵清空開發板上的標記重新標（感測器腳位會保留）。</li>
     <li><b>檢查接線</b>：一鍵檢查是否有電源／接地互接的錯誤。</li>
     <li><b>存檔與發布</b>：「匯出圖片」下載 PNG；「儲存／讀取進度」保留專案；老師建置好圖片與腳位後按「匯出成品網頁」，產生內嵌所有素材的 HTML，直接發布給學生使用。</li>
   </ol>
@@ -113,19 +114,11 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <button class="mode" data-mode="erase">🩹 橡皮擦</button>
   </div>
   <div class="group">
-    <span class="eyebrow">線條</span>
-    <div class="row" id="colorRow"></div>
-    <div class="row">
-      <select id="widthSel" aria-label="線條粗細">
-        <option value="3">細線</option>
-        <option value="5" selected>中線</option>
-        <option value="8">粗線</option>
-      </select>
-    </div>
-    <div class="row">
-      <input type="checkbox" id="autoColorChk" checked>
-      <label class="small" for="autoColorChk">依腳位自動配色</label>
-    </div>
+    <span class="eyebrow">配色規則（自動）</span>
+    <div class="legend"><i style="background:#E02B2B"></i>電源 V＝紅色</div>
+    <div class="legend"><i style="background:#1F1F1F"></i>接地 G＝黑色</div>
+    <div class="legend"><i class="multi"></i>訊號＝自動不重複</div>
+    <div class="legend"><i style="background:#8A8F98"></i>畫筆手繪＝灰色</div>
   </div>
   <div class="group off" id="selPanel">
     <span class="eyebrow">選取的感測器</span>
@@ -153,6 +146,7 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <button id="checkBtn" class="wide">✔ 檢查接線</button>
     <button id="undoBtn" class="wide">↩ 復原</button>
     <button id="clearWireBtn" class="wide">清除接線</button>
+    <button id="clearPinsBtn" class="wide">清除開發板腳位</button>
     <button id="clearAllBtn" class="wide danger">全部清除</button>
     <button id="exportBtn" class="wide primary">⬇ 匯出圖片</button>
   </div>
@@ -176,7 +170,7 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
 </main>
 </div>
 
-<footer>開發板接線模擬器 v3 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
+<footer>開發板接線模擬器 v4 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
 </div>
 
 <input type="file" id="boardFile" accept="image/*" hidden>
@@ -201,9 +195,10 @@ var strokes=[];      /* {color,width,pts:[{x,y}]} */
 var hist=[];
 var cur=null, sel=null, dragOff=null, erasing=false;
 var pending=null, mousePt=null;
-var mode='connect', penColor='#F2B705', penWidth=5, showLabels=true, autoColor=true;
+var mode='connect', penWidth=5, showLabels=true;
 var idc=0, spawnN=0;
-var COLORS=['#F2B705','#E02B2B','#1F1F1F','#1F9E4D','#2465D6','#F07F13','#8A8F98'];
+var PEN_COLOR='#8A8F98', PEN_WIDTH=4;
+var SIGNAL_COLORS=['#F2B705','#1F9E4D','#2465D6','#F07F13','#8E44AD','#0E9AA7','#D81B8C','#8B5E3C'];
 var PIN_COLOR={g:'#1F1F1F',v:'#E02B2B',s:'#F2B705'};
 var PIN_LABEL={g:'接地',v:'電源',s:'訊號'};
 
@@ -468,11 +463,18 @@ function eraseAt(p){
 /* ---------- 指標事件 ---------- */
 var hint=document.getElementById('hint');
 function say(msg,cls){hint.textContent=msg;hint.className=cls||'';}
-function wireColorFor(type){
-  if(!autoColor)return penColor;
-  if(type==='v')return '#E02B2B';
-  if(type==='g')return '#1F1F1F';
-  return penColor;
+function wireColor(A,B){
+  if(A.type==='v'||B.type==='v')return '#E02B2B';
+  if(A.type==='g'||B.type==='g')return '#1F1F1F';
+  var used={};
+  connections.forEach(function(cn){ used[cn.color]=(used[cn.color]||0)+1; });
+  var best=SIGNAL_COLORS[0], min=Infinity;
+  for(var i=0;i<SIGNAL_COLORS.length;i++){
+    var n=used[SIGNAL_COLORS[i]]||0;
+    if(n===0)return SIGNAL_COLORS[i];
+    if(n<min){min=n;best=SIGNAL_COLORS[i];}
+  }
+  return best;
 }
 cv.addEventListener('pointerdown',function(e){
   e.preventDefault(); cv.setPointerCapture(e.pointerId);
@@ -531,7 +533,7 @@ cv.addEventListener('pointerdown',function(e){
       pending=null; say('已取消接線。'); render(); return;
     }
     var A=resolvePin(pending), B=resolvePin(hp2.ref);
-    var cn={a:pending,b:hp2.ref,color:wireColorFor(A.type),width:penWidth};
+    var cn={a:pending,b:hp2.ref,color:wireColor(A,B),width:penWidth};
     connections.push(cn); hist.push({k:'c'});
     pending=null;
     if(isBad(cn)) say('⚠ 注意：'+A.label+' 接到了 '+B.label+'——電源與接地互接會短路！','bad');
@@ -544,7 +546,7 @@ cv.addEventListener('pointerdown',function(e){
     render();
   }
   else if(mode==='draw'){
-    cur={color:penColor,width:penWidth,pts:[p]}; render();
+    cur={color:PEN_COLOR,width:PEN_WIDTH,pts:[p]}; render();
   }
   else{ erasing=true; eraseAt(p); }
 });
@@ -574,7 +576,7 @@ var HINTS={
   pin:'標記腳位模式：點開發板或感測器上的針腳位置並命名；點已存在的腳位可改名或刪除。',
   connect:'接線模式：點一下起點腳位 → 再點終點腳位，接線完成後會跟著感測器與底圖移動。',
   move:'移動模式：拖曳感測器換位置，點選後可縮放或刪除。',
-  draw:'畫筆模式：自由手繪，適合補充註記或圈重點。',
+  draw:'畫筆模式：以灰色自由手繪，適合補充註記或圈重點。',
   erase:'橡皮擦模式：劃過手繪線或接線即可刪除。'};
 var selPanel=document.getElementById('selPanel');
 var itemScale=document.getElementById('itemScale');
@@ -597,21 +599,6 @@ function setMode(m){
 document.querySelectorAll('button.mode').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });
-var colorRow=document.getElementById('colorRow');
-COLORS.forEach(function(cc,i){
-  var b=document.createElement('button');
-  b.className='swatch'+(i===0?' on':'');
-  b.style.background=cc;
-  b.setAttribute('aria-label','線色 '+cc);
-  b.addEventListener('click',function(){
-    penColor=cc;
-    colorRow.querySelectorAll('.swatch').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on');
-  });
-  colorRow.appendChild(b);
-});
-document.getElementById('widthSel').addEventListener('change',function(e){penWidth=parseFloat(e.target.value);});
-document.getElementById('autoColorChk').addEventListener('change',function(e){autoColor=e.target.checked;});
 itemScale.addEventListener('input',function(){ if(sel){sel.scale=parseInt(itemScale.value,10)/100; render();} });
 document.getElementById('delBtn').addEventListener('click',removeSel);
 document.getElementById('undoBtn').addEventListener('click',function(){
@@ -622,6 +609,12 @@ document.getElementById('undoBtn').addEventListener('click',function(){
 });
 document.getElementById('clearWireBtn').addEventListener('click',function(){
   strokes=[];connections=[];cur=null;pending=null;hist=[];render();
+});
+document.getElementById('clearPinsBtn').addEventListener('click',function(){
+  if(!boardPins.length){say('開發板上目前沒有腳位標記。');return;}
+  if(!confirm('要清除開發板上全部 '+boardPins.length+' 個腳位標記嗎？連到這些腳位的接線也會一併移除。（感測器的腳位會保留）'))return;
+  boardPins=[]; pending=null; pruneConnections(); render();
+  say('已清除開發板腳位標記，可用「標記腳位」模式重新標記新的配置。');
 });
 document.getElementById('clearAllBtn').addEventListener('click',function(){
   strokes=[];connections=[];items=[];cur=null;pending=null;hist=[];setSel(null);render();
