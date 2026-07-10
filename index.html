@@ -15,7 +15,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Noto Sans TC',system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);line-height:1.55;}
-.wrap{max-width:1400px;margin:0 auto;padding:12px 14px 40px;}
+.wrap{max-width:1480px;margin:0 auto;padding:12px 14px 40px;}
 header{margin-bottom:8px;}
 .rail{height:4px;border-radius:2px;margin:4px 0;
   background-image:radial-gradient(circle,var(--rail-red) 1.6px,transparent 2px);
@@ -29,7 +29,7 @@ details.help{background:var(--card);border:1px solid var(--line);border-radius:v
 details.help summary{cursor:pointer;font-weight:500;color:var(--teal-dark);}
 details.help ol{padding-left:22px;margin-top:6px;}
 details.help li{margin:2px 0;}
-.layout{display:grid;grid-template-columns:216px minmax(0,1fr);gap:10px;align-items:start;}
+.layout{display:grid;grid-template-columns:216px minmax(0,1fr) 216px;gap:10px;align-items:start;}
 .side{display:flex;flex-direction:column;gap:8px;position:sticky;top:8px;
   max-height:calc(100vh - 16px);overflow-y:auto;padding-right:2px;}
 .main{display:flex;flex-direction:column;gap:8px;min-width:0;}
@@ -71,10 +71,12 @@ canvas#cv{display:block;width:100%;border-radius:6px;touch-action:none;cursor:cr
 #hint.ok{color:#1F7A3D;font-weight:500;}
 #hint.bad{color:#B3261E;font-weight:500;}
 footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
-@media (max-width:900px){
+@media (max-width:1000px){
   .layout{grid-template-columns:1fr;}
   .side{position:static;max-height:none;overflow:visible;flex-direction:row;flex-wrap:wrap;}
   .side .group{flex:1 1 250px;}
+  .side.right{order:2;}
+  .main{order:3;}
   button.mode,button.wide{width:auto;}
 }
 </style>
@@ -129,19 +131,6 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <button id="delBtn" class="wide danger">🗑 刪除選取</button>
   </div>
   <div class="group">
-    <span class="eyebrow">圖片</span>
-    <button id="boardBtn" class="wide">上傳開發板圖片</button>
-    <button id="sensorBtn" class="wide">上傳感測器圖片</button>
-    <div class="row" id="boardScaleRow" style="display:none;">
-      <label class="small" for="boardScale">底圖大小</label>
-      <input type="range" id="boardScale" min="30" max="100" value="90" step="1" style="width:100px;">
-    </div>
-    <div class="row">
-      <input type="checkbox" id="labelChk" checked>
-      <label class="small" for="labelChk">顯示名稱</label>
-    </div>
-  </div>
-  <div class="group">
     <span class="eyebrow">畫布動作</span>
     <button id="checkBtn" class="wide">✔ 檢查接線</button>
     <button id="undoBtn" class="wide">↩ 復原</button>
@@ -149,12 +138,6 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <button id="clearPinsBtn" class="wide">清除開發板腳位</button>
     <button id="clearAllBtn" class="wide danger">全部清除</button>
     <button id="exportBtn" class="wide primary">⬇ 匯出圖片</button>
-  </div>
-  <div class="group">
-    <span class="eyebrow">檔案</span>
-    <button id="saveBtn" class="wide">儲存進度</button>
-    <button id="loadBtn" class="wide">讀取進度</button>
-    <button id="publishBtn" class="wide">匯出成品網頁</button>
   </div>
 </aside>
 
@@ -168,9 +151,31 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <p id="hint"></p>
   </div>
 </main>
+
+<aside class="side right">
+  <div class="group">
+    <span class="eyebrow">圖片</span>
+    <button id="boardBtn" class="wide">上傳開發板圖片</button>
+    <button id="sensorBtn" class="wide">上傳感測器圖片</button>
+    <div class="row" id="boardScaleRow" style="display:none;">
+      <label class="small" for="boardScale">底圖大小</label>
+      <input type="range" id="boardScale" min="30" max="100" value="90" step="1" style="width:100px;">
+    </div>
+    <div class="row">
+      <input type="checkbox" id="labelChk" checked>
+      <label class="small" for="labelChk">顯示名稱</label>
+    </div>
+  </div>
+  <div class="group">
+    <span class="eyebrow">檔案</span>
+    <button id="saveBtn" class="wide">儲存進度</button>
+    <button id="loadBtn" class="wide">讀取進度</button>
+    <button id="publishBtn" class="wide">匯出成品網頁</button>
+  </div>
+</aside>
 </div>
 
-<footer>開發板接線模擬器 v4 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
+<footer>開發板接線模擬器 v5 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
 </div>
 
 <input type="file" id="boardFile" accept="image/*" hidden>
