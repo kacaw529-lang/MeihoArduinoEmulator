@@ -99,6 +99,7 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
     <li><b>標記腳位</b>（老師建置一次即可）：切到「標記腳位」模式，點開發板上的針腳位置並命名（如 5V、GND、D9、A0）；點感測器上的針腳同樣命名（如 V、G、S）。<b>同一種感測器只要標一次</b>，之後每個放上畫布的都會自帶腳位。名稱含 V／VCC／5V 會自動視為電源（紅點）、G／GND 為接地（黑點）、其他為訊號（黃點）。點已存在的腳位可重新命名，名稱清空則刪除。</li>
     <li><b>點擊接線</b>：切到「接線」模式，點一下起點腳位，會出現跟著游標的預覽線，再點終點腳位即完成。接線會<b>自動吸附腳位</b>，之後拖曳感測器或縮放底圖，線都會跟著移動！電源與接地互接時，線會變成紅色虛線並出現 ⚠ 警示。</li>
     <li><b>自動配色</b>：接到電源（V）的線固定紅色、接地（G）固定黑色，訊號線則自動輪流分配不重複的顏色，一眼就能分辨每一條線，不需手動選色。</li>
+    <li><b>聚焦模式與旋轉</b>：右欄的「聚焦模式」會淡化開發板上未標記腳位的區域，只保留腳位附近清晰，接線路徑一眼對焦；在「移動」模式點選感測器後，可用旋轉滑桿或「旋轉 90°」按鈕調整方向，腳位與接線都會跟著轉。</li>
     <li><b>畫筆／橡皮擦</b>：畫筆為灰色手繪，適合補充註記或圈重點；橡皮擦劃過手繪線或接線皆可刪除。教學換板或換腳位配置時，可用「清除開發板腳位」一鍵清空開發板上的標記重新標（感測器腳位會保留）。</li>
     <li><b>檢查接線</b>：一鍵檢查是否有電源／接地互接的錯誤。</li>
     <li><b>存檔與發布</b>：「匯出圖片」下載 PNG；「儲存／讀取進度」保留專案；老師建置好圖片與腳位後按「匯出成品網頁」，產生內嵌所有素材的 HTML，直接發布給學生使用。</li>
@@ -128,6 +129,11 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
       <label class="small" for="itemScale">大小</label>
       <input type="range" id="itemScale" min="30" max="250" value="100" step="1" style="width:100px;">
     </div>
+    <div class="row">
+      <label class="small" for="itemRot">旋轉</label>
+      <input type="range" id="itemRot" min="0" max="359" value="0" step="1" style="width:100px;">
+    </div>
+    <button id="rot90Btn" class="wide">↻ 旋轉 90°</button>
     <button id="delBtn" class="wide danger">🗑 刪除選取</button>
   </div>
   <div class="group">
@@ -165,6 +171,10 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
       <input type="checkbox" id="labelChk" checked>
       <label class="small" for="labelChk">顯示名稱</label>
     </div>
+    <div class="row">
+      <input type="checkbox" id="focusChk" checked>
+      <label class="small" for="focusChk">聚焦模式（淡化未用區域）</label>
+    </div>
   </div>
   <div class="group">
     <span class="eyebrow">檔案</span>
@@ -175,7 +185,7 @@ footer{margin-top:10px;font-size:12px;color:var(--muted);text-align:center;}
 </aside>
 </div>
 
-<footer>開發板接線模擬器 v5 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
+<footer>開發板接線模擬器 v6 · 適用電腦、平板觸控操作 · 匯出圖片為 PNG 格式</footer>
 </div>
 
 <input type="file" id="boardFile" accept="image/*" hidden>
@@ -200,7 +210,7 @@ var strokes=[];      /* {color,width,pts:[{x,y}]} */
 var hist=[];
 var cur=null, sel=null, dragOff=null, erasing=false;
 var pending=null, mousePt=null;
-var mode='connect', penWidth=5, showLabels=true;
+var mode='connect', penWidth=5, showLabels=true, focusMode=true;
 var idc=0, spawnN=0;
 var PEN_COLOR='#8A8F98', PEN_WIDTH=4;
 var SIGNAL_COLORS=['#F2B705','#1F9E4D','#2465D6','#F07F13','#8E44AD','#0E9AA7','#D81B8C','#8B5E3C'];
@@ -257,6 +267,17 @@ function itemRect(it){
   var dw=180*it.scale, dh=dw*p.img.naturalHeight/p.img.naturalWidth;
   return{x:it.x,y:it.y,w:dw,h:dh+(showLabels?26:0),ih:dh};
 }
+function rotP(px,py,cx,cy,rad){
+  var s=Math.sin(rad),c=Math.cos(rad);
+  var dx=px-cx,dy=py-cy;
+  return{x:cx+dx*c-dy*s,y:cy+dx*s+dy*c};
+}
+function itemAABB(it){
+  var r=itemRect(it);
+  var rad=(it.rot||0)*Math.PI/180;
+  var s=Math.abs(Math.sin(rad)),c=Math.abs(Math.cos(rad));
+  return{cx:r.x+r.w/2,cy:r.y+r.ih/2,hw:(r.w*c+r.ih*s)/2,hh:(r.w*s+r.ih*c)/2};
+}
 function resolvePin(ref){
   if(ref.t==='b'){
     var p=boardPins.find(function(q){return q.id===ref.pin;});
@@ -271,7 +292,8 @@ function resolvePin(ref){
   var pin=(pal.pins||[]).find(function(q){return q.id===ref.pin;});
   if(!pin)return null;
   var r=itemRect(it);
-  return{x:r.x+pin.nx*r.w, y:r.y+pin.ny*r.ih, type:pin.type, name:pin.name, label:pal.name+' 的 '+pin.name};
+  var P=rotP(r.x+pin.nx*r.w, r.y+pin.ny*r.ih, r.x+r.w/2, r.y+r.ih/2, (it.rot||0)*Math.PI/180);
+  return{x:P.x, y:P.y, type:pin.type, name:pin.name, label:pal.name+' 的 '+pin.name};
 }
 function pruneConnections(){
   connections=connections.filter(function(c){return resolvePin(c.a)&&resolvePin(c.b);});
@@ -332,6 +354,28 @@ function drawPinDot(c,x,y,type,name){
   c.fillStyle='#22302F';
   c.fillText(name,x,y-10);
 }
+var focusCache={key:'',cv:null};
+function focusOverlay(br){
+  var key=Math.round(br.w)+'x'+Math.round(br.h)+':'+boardPins.map(function(p){return p.nx.toFixed(4)+','+p.ny.toFixed(4);}).join(';');
+  if(focusCache.key===key&&focusCache.cv)return focusCache.cv;
+  var ov=document.createElement('canvas');
+  ov.width=Math.max(2,Math.ceil(br.w*DPR)); ov.height=Math.max(2,Math.ceil(br.h*DPR));
+  var oc=ov.getContext('2d');
+  oc.scale(DPR,DPR);
+  oc.fillStyle='rgba(255,255,255,0.74)';
+  oc.fillRect(0,0,br.w,br.h);
+  oc.globalCompositeOperation='destination-out';
+  boardPins.forEach(function(p){
+    var x=p.nx*br.w, y=p.ny*br.h;
+    var g=oc.createRadialGradient(x,y,12,x,y,44);
+    g.addColorStop(0,'rgba(0,0,0,1)');
+    g.addColorStop(1,'rgba(0,0,0,0)');
+    oc.fillStyle=g;
+    oc.beginPath();oc.arc(x,y,44,0,7);oc.fill();
+  });
+  focusCache={key:key,cv:ov};
+  return ov;
+}
 function scene(c,forExport){
   c.fillStyle=forExport?'#FFFFFF':'#FAFBFB';
   c.fillRect(0,0,W,H);
@@ -342,6 +386,9 @@ function scene(c,forExport){
   if(board.img){
     var br=boardRect();
     c.drawImage(board.img,br.x,br.y,br.w,br.h);
+    if(focusMode&&boardPins.length){
+      c.drawImage(focusOverlay(br),br.x,br.y,br.w,br.h);
+    }
   }else if(!forExport){
     c.fillStyle='#9AABAA'; c.font='500 26px "Noto Sans TC",sans-serif';
     c.textAlign='center'; c.textBaseline='middle';
@@ -353,14 +400,19 @@ function scene(c,forExport){
     var p=palette.find(function(q){return q.id===it.pid;});
     if(!p||!p.img)return;
     var r=itemRect(it);
-    c.drawImage(p.img,r.x,r.y,r.w,r.ih);
+    c.save();
+    c.translate(r.x+r.w/2, r.y+r.ih/2);
+    c.rotate((it.rot||0)*Math.PI/180);
+    c.drawImage(p.img,-r.w/2,-r.ih/2,r.w,r.ih);
+    c.restore();
     if(showLabels){
+      var bb=itemAABB(it);
       c.font='500 16px "Noto Sans TC",sans-serif';
       c.textAlign='center'; c.textBaseline='middle';
       c.lineWidth=4; c.strokeStyle='rgba(255,255,255,.9)';
-      c.strokeText(p.name,r.x+r.w/2,r.y+r.ih+14);
+      c.strokeText(p.name,bb.cx,bb.cy+bb.hh+14);
       c.fillStyle='#22302F';
-      c.fillText(p.name,r.x+r.w/2,r.y+r.ih+14);
+      c.fillText(p.name,bb.cx,bb.cy+bb.hh+14);
     }
   });
   connections.forEach(function(cn){
@@ -387,7 +439,8 @@ function scene(c,forExport){
     if(!pal)return;
     (pal.pins||[]).forEach(function(pin){
       var r=itemRect(it);
-      drawPinDot(c,r.x+pin.nx*r.w,r.y+pin.ny*r.ih,pin.type,pin.name);
+      var P=rotP(r.x+pin.nx*r.w, r.y+pin.ny*r.ih, r.x+r.w/2, r.y+r.ih/2, (it.rot||0)*Math.PI/180);
+      drawPinDot(c,P.x,P.y,pin.type,pin.name);
     });
   });
   if(pending&&!forExport){
@@ -407,9 +460,13 @@ function scene(c,forExport){
   });
   if(sel&&!forExport){
     var r2=itemRect(sel);
+    c.save();
+    c.translate(r2.x+r2.w/2, r2.y+r2.ih/2);
+    c.rotate((sel.rot||0)*Math.PI/180);
     c.strokeStyle='#00878F'; c.lineWidth=2; c.setLineDash([7,5]);
-    c.strokeRect(r2.x-6,r2.y-6,r2.w+12,r2.h+12);
+    c.strokeRect(-r2.w/2-6,-r2.ih/2-6,r2.w+12,r2.ih+12);
     c.setLineDash([]);
+    c.restore();
   }
 }
 function render(){ ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,W,H); scene(ctx,false); }
@@ -418,8 +475,9 @@ function render(){ ctx.setTransform(DPR,0,0,DPR,0,0); ctx.clearRect(0,0,W,H); sc
 function pt(e){var r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
 function hitItem(p){
   for(var i=items.length-1;i>=0;i--){
-    var r=itemRect(items[i]);
-    if(p.x>=r.x-6&&p.x<=r.x+r.w+6&&p.y>=r.y-6&&p.y<=r.y+r.h+6)return items[i];
+    var it=items[i], r=itemRect(it);
+    var q=rotP(p.x,p.y, r.x+r.w/2, r.y+r.ih/2, -(it.rot||0)*Math.PI/180);
+    if(q.x>=r.x-8&&q.x<=r.x+r.w+8&&q.y>=r.y-8&&q.y<=r.y+r.ih+30)return it;
   }
   return null;
 }
@@ -432,8 +490,8 @@ function hitPin(p){
     var r=itemRect(it);
     var pins=pal.pins||[];
     for(var j=0;j<pins.length;j++){
-      var x=r.x+pins[j].nx*r.w, y=r.y+pins[j].ny*r.ih;
-      var dx=p.x-x,dy=p.y-y;
+      var P=rotP(r.x+pins[j].nx*r.w, r.y+pins[j].ny*r.ih, r.x+r.w/2, r.y+r.ih/2, (it.rot||0)*Math.PI/180);
+      var dx=p.x-P.x,dy=p.y-P.y;
       if(dx*dx+dy*dy<R)return{ref:{t:'i',item:it.id,pin:pins[j].id},obj:pins[j],pal:pal};
     }
   }
@@ -511,8 +569,9 @@ cv.addEventListener('pointerdown',function(e){
     if(it){
       var pal=palette.find(function(q){return q.id===it.pid;});
       var r=itemRect(it);
+      var q2=rotP(p.x,p.y, r.x+r.w/2, r.y+r.ih/2, -(it.rot||0)*Math.PI/180);
       pal.pins=pal.pins||[];
-      pal.pins.push({id:uid('n'),name:nm,type:tp,nx:(p.x-r.x)/r.w,ny:(p.y-r.y)/r.ih});
+      pal.pins.push({id:uid('n'),name:nm,type:tp,nx:(q2.x-r.x)/r.w,ny:(q2.y-r.y)/r.ih});
       say('已在「'+pal.name+'」加上腳位「'+nm+'」（'+PIN_LABEL[tp]+'）——所有同款感測器都會擁有這個腳位。');
       renderPalette();
     }else{
@@ -560,9 +619,11 @@ cv.addEventListener('pointermove',function(e){
   if(mode==='connect'&&pending){render();return;}
   if(!cur&&!erasing&&!dragOff)return;
   if(mode==='move'&&sel&&dragOff){
-    var r=itemRect(sel);
-    sel.x=Math.min(Math.max(p.x-dragOff.dx,4),W-r.w-4);
-    sel.y=Math.min(Math.max(p.y-dragOff.dy,4),H-r.h-4);
+    sel.x=p.x-dragOff.dx; sel.y=p.y-dragOff.dy;
+    var bb=itemAABB(sel);
+    var cx=Math.min(Math.max(bb.cx,bb.hw+4),W-bb.hw-4);
+    var cy=Math.min(Math.max(bb.cy,bb.hh+4),H-bb.hh-4);
+    sel.x+=cx-bb.cx; sel.y+=cy-bb.cy;
     render();
   }else if(mode==='draw'&&cur){ cur.pts.push(p); render(); }
   else if(mode==='erase'&&erasing){ eraseAt(p); }
@@ -580,15 +641,16 @@ document.addEventListener('keydown',function(e){
 var HINTS={
   pin:'標記腳位模式：點開發板或感測器上的針腳位置並命名；點已存在的腳位可改名或刪除。',
   connect:'接線模式：點一下起點腳位 → 再點終點腳位，接線完成後會跟著感測器與底圖移動。',
-  move:'移動模式：拖曳感測器換位置，點選後可縮放或刪除。',
+  move:'移動模式：拖曳感測器換位置，點選後可縮放、旋轉或刪除。',
   draw:'畫筆模式：以灰色自由手繪，適合補充註記或圈重點。',
   erase:'橡皮擦模式：劃過手繪線或接線即可刪除。'};
 var selPanel=document.getElementById('selPanel');
 var itemScale=document.getElementById('itemScale');
+var itemRot=document.getElementById('itemRot');
 function setSel(s){
   sel=s;
   selPanel.classList.toggle('off',!s);
-  if(s)itemScale.value=Math.round(s.scale*100);
+  if(s){itemScale.value=Math.round(s.scale*100);itemRot.value=Math.round(s.rot||0);}
 }
 function removeSel(){
   if(!sel)return;
@@ -605,6 +667,13 @@ document.querySelectorAll('button.mode').forEach(function(b){
   b.addEventListener('click',function(){setMode(b.dataset.mode);});
 });
 itemScale.addEventListener('input',function(){ if(sel){sel.scale=parseInt(itemScale.value,10)/100; render();} });
+itemRot.addEventListener('input',function(){ if(sel){sel.rot=parseInt(itemRot.value,10); render();} });
+document.getElementById('rot90Btn').addEventListener('click',function(){
+  if(!sel)return;
+  sel.rot=(((sel.rot||0)+90)%360);
+  itemRot.value=sel.rot;
+  render();
+});
 document.getElementById('delBtn').addEventListener('click',removeSel);
 document.getElementById('undoBtn').addEventListener('click',function(){
   var h=hist.pop();
@@ -625,6 +694,7 @@ document.getElementById('clearAllBtn').addEventListener('click',function(){
   strokes=[];connections=[];items=[];cur=null;pending=null;hist=[];setSel(null);render();
 });
 document.getElementById('labelChk').addEventListener('change',function(e){showLabels=e.target.checked;render();});
+document.getElementById('focusChk').addEventListener('change',function(e){focusMode=e.target.checked;render();});
 document.getElementById('checkBtn').addEventListener('click',function(){
   pruneConnections();
   if(!connections.length){say('目前還沒有任何接線。');return;}
@@ -737,7 +807,7 @@ function projectData(){
     board:board.dataUrl?{dataUrl:board.dataUrl,scale:board.scale}:null,
     palette:palette.map(function(p){return{id:p.id,name:p.name,dataUrl:p.dataUrl,pins:p.pins||[]};}),
     items:items, boardPins:boardPins, connections:connections,
-    strokes:strokes, showLabels:showLabels};
+    strokes:strokes, showLabels:showLabels, focusMode:focusMode};
 }
 function downloadBlob(content,type,name){
   var a=document.createElement('a');
@@ -777,6 +847,8 @@ function loadProject(d){
   hist=[]; pending=null; setSel(null);
   showLabels=(d.showLabels!==false);
   document.getElementById('labelChk').checked=showLabels;
+  focusMode=(d.focusMode!==false);
+  document.getElementById('focusChk').checked=focusMode;
   return Promise.all(tasks).then(function(){
     /* 舊版（v2）腳位為絕對座標，轉為相對於底圖的座標 */
     var br=boardRect();
